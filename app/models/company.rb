@@ -1,19 +1,18 @@
 class Company < ApplicationRecord
-  belongs_to :employee, foreign_key: 'ceo_id', optional: true
+  belongs_to :ceo, foreign_key: 'ceo_id', optional: true, :class_name => 'Employee'
   has_and_belongs_to_many :employees
   validates :name, presence: true
 
-  def ceo
-    if self.ceo_id.present?
-      Employee.find(self.ceo_id)
-    end
+  def fireEmployee(employee)
+    return unless employee.present?
+    self.ceo = nil if self.ceo.eql?(employee)
+    self.employees.delete(employee)
+    self.save
   end
 
-  def ceo=(employee)
-    if employee.is_a?(Employee)
-      self.ceo_id = employee.id
-    else
-      # raise
-    end
+  def hireEmployee(employee)
+    return unless employee.present?
+    self.employees << employee
+    self.save
   end
 end
