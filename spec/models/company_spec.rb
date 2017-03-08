@@ -26,22 +26,22 @@ RSpec.describe Company, type: :model do
 
     it 'with employee' do
       employee = Employee.new(first_name: 'Foo', last_name: 'Bar', social_number: '123456789')
-      subject.employees << employee
+      subject.hireEmployee employee
       expect(subject.employees.size).to eq 1
     end
 
     it 'with two employees' do
       employee = Employee.new(first_name: 'Foo', last_name: 'Bar', social_number: '123456789')
       employee2 = Employee.new(first_name: 'Foo', last_name: 'Bar', social_number: '123456789')
-      subject.employees << employee
-      subject.employees << employee2
+      subject.hireEmployee employee
+      subject.hireEmployee employee2
       expect(subject.employees.size).to eq 2
     end
 
     it 'can fire employee' do
       employee = Employee.new(first_name: 'Foo', last_name: 'Bar', social_number: '123456789')
       subject.employees << employee
-      subject.employees.delete(employee)
+      subject.fireEmployee(employee)
       expect(subject.employees.size).to eq 0
     end
   end

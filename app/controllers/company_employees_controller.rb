@@ -1,6 +1,9 @@
+require_relative '../services/hiring_service'
+
 class CompanyEmployeesController < ApplicationController
   before_action :set_company
   before_action :set_employee, only: [:show, :update, :destroy]
+  before_action :set_hiring_service, only: [:create, :destroy]
 
   # GET /companies/1/employees
   def index
@@ -14,16 +17,11 @@ class CompanyEmployeesController < ApplicationController
 
   # POST /companies/1/employees
   def create
-    employee = Employee.new(employee_params)
-    if employee.save
-      @company.hireEmployee(employee)
-      if @company.save
-        render json: employee, status: :created, location: @company
-      else
-        render json: @company.errors, status: :unprocessable_entity
-      end
-    else
+    employee = @hiring_service.hireEmployee(employee_params)
+    if employee.errors.present?
       render json: employee.errors, status: :unprocessable_entity
+    else
+      render json: employee, status: :created, location: @company
     end
   end
 
@@ -37,7 +35,7 @@ class CompanyEmployeesController < ApplicationController
 
   # DELETE /companies/1/employees/1
   def destroy
-    @company.fireEmployee(@employee)
+    @hiring_service.fireEmployee(@employee)
   end
 
   private
@@ -48,6 +46,10 @@ class CompanyEmployeesController < ApplicationController
 
   def set_employee
     @employee = @company.employees.find(params[:id])
+  end
+
+  def set_hiring_service
+    @hiring_service = HiringService.new(@company)
   end
 
   # Only allow a trusted parameter "white list" through.

@@ -13,8 +13,10 @@ RSpec.describe EmployeesController, type: :controller do
 
   let(:invalid_attributes) { {
     last_name: 'Bar',
-    social_number: 'ABCDEFGHI'
+    social_number: 'ABCDI'
   } }
+
+  let(:unprocessable_entity) { 422 }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -22,18 +24,18 @@ RSpec.describe EmployeesController, type: :controller do
   let(:valid_session) { {} }
 
   describe "GET #index" do
-    it "assigns all employees as @employees" do
+    it "gets all employees json" do
       employee = Employee.create! valid_attributes
       get :index, params: {}, session: valid_session
-      expect(assigns(:employees)).to eq([employee])
+      expect(response.body).to eq([employee].to_json)
     end
   end
 
   describe "GET #show" do
-    it "assigns the requested employee as @employee" do
+    it "get specific employee json" do
       employee = Employee.create! valid_attributes
       get :show, params: {id: employee.to_param}, session: valid_session
-      expect(assigns(:employee)).to eq(employee)
+      expect(response.body).to eq(employee.to_json)
     end
   end
 
@@ -44,18 +46,12 @@ RSpec.describe EmployeesController, type: :controller do
           post :create, params: {employee: valid_attributes}, session: valid_session
         }.to change(Employee, :count).by(1)
       end
-
-      it "assigns a newly created employee as @employee" do
-        post :create, params: {employee: valid_attributes}, session: valid_session
-        expect(assigns(:employee)).to be_a(Employee)
-        expect(assigns(:employee)).to be_persisted
-      end
     end
 
     context "with invalid params" do
-      it "assigns a newly created but unsaved employee as @employee" do
+      it "get unprocessable_entity status" do
         post :create, params: {employee: invalid_attributes}, session: valid_session
-        expect(assigns(:employee)).to be_a_new(Employee)
+        expect(response.status).to be unprocessable_entity
       end
     end
   end
@@ -74,19 +70,13 @@ RSpec.describe EmployeesController, type: :controller do
         expect(employee.first_name).to eq 'New Foo'
         expect(employee.last_name).to eq 'New Bar'
       end
-
-      it "assigns the requested employee as @employee" do
-        employee = Employee.create! valid_attributes
-        put :update, params: {id: employee.to_param, employee: valid_attributes}, session: valid_session
-        expect(assigns(:employee)).to eq(employee)
-      end
     end
 
     context "with invalid params" do
-      it "assigns the employee as @employee" do
+      it "get unprocessable_entity status" do
         employee = Employee.create! valid_attributes
         put :update, params: {id: employee.to_param, employee: invalid_attributes}, session: valid_session
-        expect(assigns(:employee)).to eq(employee)
+        expect(response.status).to be unprocessable_entity
       end
     end
   end

@@ -12,8 +12,10 @@ RSpec.describe CompaniesController, type: :controller do
   } }
 
   let(:invalid_attributes) { {
-    'sector' => 'Foo sector'
+    name: nil
   } }
+
+  let(:unprocessable_entity) { 422 }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -21,18 +23,18 @@ RSpec.describe CompaniesController, type: :controller do
   let(:valid_session) { {} }
 
   describe "GET #index" do
-    it "assigns all companies as @companies" do
+    it "gets all companies json" do
       company = Company.create! valid_attributes
       get :index, params: {}, session: valid_session
-      expect(assigns(:companies)).to eq([company])
+      expect(response.body).to eq([company].to_json)
     end
   end
 
   describe "GET #show" do
-    it "assigns the requested company as @company" do
+    it "gets specific company json" do
       company = Company.create! valid_attributes
       get :show, params: {id: company.to_param}, session: valid_session
-      expect(assigns(:company)).to eq(company)
+      expect(response.body).to eq(company.to_json)
     end
   end
 
@@ -42,20 +44,13 @@ RSpec.describe CompaniesController, type: :controller do
         expect {
           post :create, params: {company: valid_attributes}, session: valid_session
         }.to change(Company, :count).by(1)
-        expect(assigns(:company).name).to eq 'Company Name'
-      end
-
-      it "assigns a newly created company as @company" do
-        post :create, params: {company: valid_attributes}, session: valid_session
-        expect(assigns(:company)).to be_a(Company)
-        expect(assigns(:company)).to be_persisted
       end
     end
 
     context "with invalid params" do
-      it "assigns a newly created but unsaved company as @company" do
+      it "get unprocessable_entity status" do
         post :create, params: {company: invalid_attributes}, session: valid_session
-        expect(assigns(:company)).to be_a_new(Company)
+        expect(response.status).to be unprocessable_entity
       end
     end
   end
@@ -72,19 +67,13 @@ RSpec.describe CompaniesController, type: :controller do
         company.reload
         expect(company.name).to eq('new name')
       end
-
-      it "assigns the requested company as @company" do
-        company = Company.create! valid_attributes
-        put :update, params: {id: company.to_param, company: valid_attributes}, session: valid_session
-        expect(assigns(:company)).to eq(company)
-      end
     end
 
     context "with invalid params" do
-      it "assigns the company as @company" do
+      it "get unprocessable_entity status" do
         company = Company.create! valid_attributes
         put :update, params: {id: company.to_param, company: invalid_attributes}, session: valid_session
-        expect(assigns(:company)).to eq(company)
+        expect(response.status).to be unprocessable_entity
       end
     end
   end
